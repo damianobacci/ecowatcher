@@ -23,7 +23,6 @@ const styles = StyleSheet.create({
   button: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    margin: 4,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -31,6 +30,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.secondary500,
     marginTop: 14,
     backgroundColor: Colors.primary500,
+    marginRight: 4,
   },
   pressed: {
     opacity: 0.7,

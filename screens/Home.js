@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Image } from "react-native";
 import OutlinedButton from "../components/ui/OutlinedButton";
 import Colors from "../utils/colors";
@@ -7,7 +6,7 @@ import { Roboto_700Bold } from "@expo-google-fonts/roboto";
 import { BowlbyOneSC_400Regular } from "@expo-google-fonts/bowlby-one-sc";
 import { Merriweather_400Regular } from "@expo-google-fonts/merriweather";
 
-export default function Home() {
+export default function Home({ navigation }) {
   let [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Roboto_700Bold,
@@ -17,6 +16,10 @@ export default function Home() {
 
   if (!fontsLoaded && !fontError) {
     return null;
+  }
+
+  function getStartedHandler() {
+    navigation.navigate("UploadData");
   }
 
   return (
@@ -30,16 +33,14 @@ export default function Home() {
       <Text style={styles.title}>EcoWatcher</Text>
       <View style={styles.claimContainer}>
         <Text style={styles.claim}>
-          EcoWatcher allows to report litter and pollution hotspots in your
-          city, by simply snapping a photo of the trash or environmental concern
-          and sharing it to the local public administration.
+          EcoWatcher allows to report litter and pollution hotspots in your city
+          by simply snapping a photo of the trash and sharing it to the local
+          public administration.
         </Text>
       </View>
-
-      <StatusBar style="light" />
       <OutlinedButton
         icon="arrow-forward-circle-outline"
-        onPress={() => alert("asd")}
+        onPress={getStartedHandler}
       >
         GET STARTED
       </OutlinedButton>
@@ -55,10 +56,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   imageContainer: {
-    width: 250,
-    height: 250,
+    width: 220,
+    height: 220,
     backgroundColor: "white",
-    borderRadius: 250,
+    borderRadius: 220,
     borderWidth: 10,
     borderColor: Colors.primary500,
   },
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
     fontFamily: "Merriweather_400Regular",
     textAlign: "center",
     lineHeight: 26,
-    fontSize: 22,
+    fontSize: 18,
     color: Colors.primary500,
   },
   claimContainer: {
