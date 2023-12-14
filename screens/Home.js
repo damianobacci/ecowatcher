@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, Alert } from "react-native";
 import OutlinedButton from "../components/ui/OutlinedButton";
+import FullButton from "../components/ui/FullButton";
 import Colors from "../utils/colors";
 import { useFonts, Inter_400Regular } from "@expo-google-fonts/inter";
 import { Roboto_700Bold } from "@expo-google-fonts/roboto";
@@ -38,11 +39,17 @@ export default function Home({ navigation }) {
           public administration.
         </Text>
       </View>
-      <OutlinedButton
+      <FullButton
         icon="arrow-forward-circle-outline"
         onPress={getStartedHandler}
       >
         GET STARTED
+      </FullButton>
+      <OutlinedButton
+        icon="information-circle-outline"
+        onPress={() => alert("will open a modal <a href='http://'>Asd</a>")}
+      >
+        ABOUT
       </OutlinedButton>
     </View>
   );
