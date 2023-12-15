@@ -17,11 +17,13 @@ import {
   PermissionStatus,
 } from "expo-location";
 import FullButton from "../components/ui/FullButton";
+import { getMapPreview } from "../utils/location";
+import * as Linking from "expo-linking";
 
 export default function UploadData() {
   const [enteredDescription, setEnteredDescription] = useState("");
   const [pickedImage, setPickedImage] = useState();
-  const [location, setLocation] = useState();
+  const [location, setLocation] = useState("");
   const [locationPermissionInfo, requestPermission] =
     useForegroundPermissions();
 
@@ -70,7 +72,10 @@ export default function UploadData() {
       return;
     }
     const currentLocation = await getCurrentPositionAsync({ accuracy: 5 });
-    console.log(currentLocation);
+    setLocation({
+      lat: currentLocation.coords.latitude,
+      lng: currentLocation.coords.longitude,
+    });
   }
 
   function pickOnMapHandler() {}
@@ -114,18 +119,38 @@ export default function UploadData() {
         </View>
         <Text style={styles.label}>Location of the litter</Text>
         <View>
-          <View style={styles.mapContainer}></View>
+          <View style={styles.imageContainer}>
+            {location ? (
+              <Image
+                style={styles.image}
+                source={{ uri: getMapPreview(location.lat, location.lng) }}
+              />
+            ) : (
+              <Text style={styles.previewText}>No location picked yet.</Text>
+            )}
+          </View>
+
           <View style={styles.controls}>
             <OutlinedButton icon="locate-outline" onPress={getLocationHandler}>
               LOCATE
             </OutlinedButton>
             <OutlinedButton icon="map-outline" onPress={pickOnMapHandler}>
-              SEARCH ON MAP
+              PIN ON MAP
             </OutlinedButton>
           </View>
         </View>
         <View>
           <FullButton icon="paper-plane-outline">SEND</FullButton>
+          <FullButton
+            icon="logo-twitter"
+            onPress={() =>
+              Linking.openURL(
+                `https://twitter.com/intent/tweet?text=Ciao%20%40amsa_spa%2C%20ti%20segnalo%20${enteredDescription}.%20Indirizzo%3A%20xxx%2C%20geo%3A%20${location.lat}%2C${location.lng}`
+              )
+            }
+          >
+            TWEET
+          </FullButton>
           <OutlinedButton icon="refresh-outline" onPress={resetHandler}>
             RESET
           </OutlinedButton>
@@ -139,7 +164,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.secondary500,
-    padding: 18,
+    padding: 24,
     paddingTop: 36,
   },
   label: {
@@ -164,7 +189,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: "100%",
-    height: 200,
+    height: 180,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: Colors.primary500,
@@ -175,12 +200,5 @@ const styles = StyleSheet.create({
   },
   previewText: {
     color: Colors.secondary500,
-  },
-  mapContainer: {
-    width: "100%",
-    height: 200,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: Colors.primary500,
   },
 });
