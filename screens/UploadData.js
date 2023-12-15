@@ -31,6 +31,9 @@ export default function UploadData() {
     setPickedImage(image.assets[0].uri);
   }
 
+  function getLocationHandler() {}
+
+  function pickOnMapHandler() {}
   return (
     <View style={styles.container}>
       <Text style={styles.label}>
@@ -59,6 +62,17 @@ export default function UploadData() {
             onPress={imageLibraryHandler}
           >
             UPLOAD IMAGE
+          </OutlinedButton>
+        </View>
+      </View>
+      <View>
+        <View></View>
+        <View style={styles.controls}>
+          <OutlinedButton icon="locate-outline" onPress={getLocationHandler}>
+            LOCATE
+          </OutlinedButton>
+          <OutlinedButton icon="map-outline" onPress={pickOnMapHandler}>
+            SEARCH ON MAP
           </OutlinedButton>
         </View>
       </View>
@@ -96,7 +110,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: "100%",
     height: 200,
-    marginVertical: 8,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: Colors.primary500,
