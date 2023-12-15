@@ -1,13 +1,29 @@
-import { TextInput, View, Text, Image, StyleSheet } from "react-native";
+import {
+  TextInput,
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  Alert,
+} from "react-native";
 import OutlinedButton from "../components/ui/OutlinedButton";
 import { useState } from "react";
 import Colors from "../utils/colors";
 import { launchCameraAsync, launchImageLibraryAsync } from "expo-image-picker";
+import {
+  getCurrentPositionAsync,
+  useForegroundPermissions,
+  PermissionStatus,
+} from "expo-location";
+import FullButton from "../components/ui/FullButton";
 
 export default function UploadData() {
   const [enteredDescription, setEnteredDescription] = useState("");
   const [pickedImage, setPickedImage] = useState();
   const [location, setLocation] = useState();
+  const [locationPermissionInfo, requestPermission] =
+    useForegroundPermissions();
 
   function descriptionHandler(inputText) {
     setEnteredDescription(inputText);
@@ -31,51 +47,90 @@ export default function UploadData() {
     setPickedImage(image.assets[0].uri);
   }
 
-  function getLocationHandler() {}
+  async function verifyPermission() {
+    if (locationPermissionInfo.status === PermissionStatus.UNDETERMINED) {
+      const permissionResponse = await requestPermission();
+      return permissionResponse.granted;
+    }
+
+    if (locationPermissionInfo.status === PermissionStatus.DENIED) {
+      Alert.alert(
+        "Insufficient Permisisons!",
+        "You need to grant location permissions to use this app."
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  async function getLocationHandler() {
+    const hasPermission = await verifyPermission();
+    if (!hasPermission) {
+      return;
+    }
+    const currentLocation = await getCurrentPositionAsync({ accuracy: 5 });
+    console.log(currentLocation);
+  }
 
   function pickOnMapHandler() {}
+
+  function resetHandler() {
+    setEnteredDescription("");
+    setPickedImage();
+    setLocation();
+  }
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>
-        Describe the litter (material, position..)
-      </Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={descriptionHandler}
-        value={enteredDescription}
-      />
-      <Text style={styles.label}>Image of the litter</Text>
-      <View>
-        <View style={styles.imageContainer}>
-          {pickedImage ? (
-            <Image style={styles.image} source={{ uri: pickedImage }} />
-          ) : (
-            <Text style={styles.previewText}>No image taken yet.</Text>
-          )}
+      <ScrollView>
+        <Text style={styles.label}>
+          Describe the litter (material, position..)
+        </Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={descriptionHandler}
+          value={enteredDescription}
+        />
+        <Text style={styles.label}>Image of the litter</Text>
+        <View>
+          <View style={styles.imageContainer}>
+            {pickedImage ? (
+              <Image style={styles.image} source={{ uri: pickedImage }} />
+            ) : (
+              <Text style={styles.previewText}>No image taken yet.</Text>
+            )}
+          </View>
+          <View style={styles.controls}>
+            <OutlinedButton icon="camera" onPress={takeImageHandler}>
+              TAKE IMAGE
+            </OutlinedButton>
+            <OutlinedButton
+              icon="cloud-upload-outline"
+              onPress={imageLibraryHandler}
+            >
+              UPLOAD IMAGE
+            </OutlinedButton>
+          </View>
         </View>
-        <View style={styles.controls}>
-          <OutlinedButton icon="camera" onPress={takeImageHandler}>
-            TAKE IMAGE
-          </OutlinedButton>
-          <OutlinedButton
-            icon="cloud-upload-outline"
-            onPress={imageLibraryHandler}
-          >
-            UPLOAD IMAGE
+        <Text style={styles.label}>Location of the litter</Text>
+        <View>
+          <View style={styles.mapContainer}></View>
+          <View style={styles.controls}>
+            <OutlinedButton icon="locate-outline" onPress={getLocationHandler}>
+              LOCATE
+            </OutlinedButton>
+            <OutlinedButton icon="map-outline" onPress={pickOnMapHandler}>
+              SEARCH ON MAP
+            </OutlinedButton>
+          </View>
+        </View>
+        <View>
+          <FullButton icon="paper-plane-outline">SEND</FullButton>
+          <OutlinedButton icon="refresh-outline" onPress={resetHandler}>
+            RESET
           </OutlinedButton>
         </View>
-      </View>
-      <View>
-        <View></View>
-        <View style={styles.controls}>
-          <OutlinedButton icon="locate-outline" onPress={getLocationHandler}>
-            LOCATE
-          </OutlinedButton>
-          <OutlinedButton icon="map-outline" onPress={pickOnMapHandler}>
-            SEARCH ON MAP
-          </OutlinedButton>
-        </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -84,13 +139,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.secondary500,
-    padding: 24,
+    padding: 18,
     paddingTop: 36,
   },
   label: {
     color: Colors.primary500,
     fontWeight: "bold",
-    marginTop: 30,
+    marginTop: 20,
     marginBottom: 6,
   },
   input: {
@@ -104,7 +159,7 @@ const styles = StyleSheet.create({
   },
   controls: {
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "space-around",
     overflow: "hidden",
   },
   imageContainer: {
@@ -120,5 +175,12 @@ const styles = StyleSheet.create({
   },
   previewText: {
     color: Colors.secondary500,
+  },
+  mapContainer: {
+    width: "100%",
+    height: 200,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.primary500,
   },
 });
