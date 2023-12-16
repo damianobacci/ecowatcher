@@ -20,7 +20,7 @@ import FullButton from "../components/ui/FullButton";
 import { getMapPreview, reverseGeocode } from "../utils/location";
 import * as Linking from "expo-linking";
 
-export default function UploadData() {
+export default function UploadData({ navigation }) {
   const [enteredDescription, setEnteredDescription] = useState("");
   const [pickedImage, setPickedImage] = useState();
   const [location, setLocation] = useState("");
@@ -83,8 +83,6 @@ export default function UploadData() {
     });
   }
 
-  function pickOnMapHandler() {}
-
   function resetHandler() {
     setEnteredDescription("");
     setPickedImage("");
@@ -145,9 +143,10 @@ export default function UploadData() {
           <View style={styles.controls}>
             <FullButton
               icon="paper-plane-outline"
-              onPress={() =>
-                console.log(enteredDescription, pickedImage, location)
-              }
+              onPress={() => {
+                console.log(enteredDescription, pickedImage, location);
+                navigation.navigate("DataSent");
+              }}
             >
               SEND
             </FullButton>
