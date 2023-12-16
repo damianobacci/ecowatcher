@@ -17,7 +17,7 @@ import {
   PermissionStatus,
 } from "expo-location";
 import FullButton from "../components/ui/FullButton";
-import { getMapPreview } from "../utils/location";
+import { getMapPreview, reverseGeocode } from "../utils/location";
 import * as Linking from "expo-linking";
 
 export default function UploadData() {
@@ -72,9 +72,14 @@ export default function UploadData() {
       return;
     }
     const currentLocation = await getCurrentPositionAsync({ accuracy: 5 });
+    const address = await reverseGeocode(
+      currentLocation.coords.latitude,
+      currentLocation.coords.longitude
+    );
     setLocation({
       lat: currentLocation.coords.latitude,
       lng: currentLocation.coords.longitude,
+      address: address,
     });
   }
 
@@ -82,8 +87,8 @@ export default function UploadData() {
 
   function resetHandler() {
     setEnteredDescription("");
-    setPickedImage();
-    setLocation();
+    setPickedImage("");
+    setLocation("");
   }
   return (
     <View style={styles.container}>
@@ -134,26 +139,32 @@ export default function UploadData() {
             <OutlinedButton icon="locate-outline" onPress={getLocationHandler}>
               LOCATE
             </OutlinedButton>
-            <OutlinedButton icon="map-outline" onPress={pickOnMapHandler}>
-              PIN ON MAP
-            </OutlinedButton>
           </View>
         </View>
-        <View>
-          <FullButton icon="paper-plane-outline">SEND</FullButton>
-          <FullButton
-            icon="logo-twitter"
-            onPress={() =>
-              Linking.openURL(
-                `https://twitter.com/intent/tweet?text=Ciao%20%40amsa_spa%2C%20ti%20segnalo%20${enteredDescription}.%20Indirizzo%3A%20xxx%2C%20geo%3A%20${location.lat}%2C${location.lng}`
-              )
-            }
-          >
-            TWEET
-          </FullButton>
-          <OutlinedButton icon="refresh-outline" onPress={resetHandler}>
-            RESET
-          </OutlinedButton>
+        <View style={styles.buttons}>
+          <View style={styles.controls}>
+            <FullButton
+              icon="paper-plane-outline"
+              onPress={() =>
+                console.log(enteredDescription, pickedImage, location)
+              }
+            >
+              SEND
+            </FullButton>
+            <FullButton
+              icon="logo-twitter"
+              onPress={() =>
+                Linking.openURL(
+                  `https://twitter.com/intent/tweet?text=Ciao%20%40amsa_spa%2C%20vi%20segnalo%20${enteredDescription}.%20Indirizzo%3A%20${location.address}%2C%20coord%3A%20${location.lat}%2C${location.lng}`
+                )
+              }
+            >
+              TWEET
+            </FullButton>
+            <OutlinedButton icon="refresh-outline" onPress={resetHandler}>
+              RESET
+            </OutlinedButton>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -175,16 +186,15 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    color: Colors.secondary500,
+    color: Colors.primary500,
     borderColor: Colors.primary500,
-    backgroundColor: Colors.primary500,
     fontSize: 16,
     paddingHorizontal: 4,
     paddingVertical: 8,
   },
   controls: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
     overflow: "hidden",
   },
   imageContainer: {
@@ -192,13 +202,19 @@ const styles = StyleSheet.create({
     height: 180,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Colors.primary500,
+    borderColor: Colors.primary500,
+    borderWidth: 1,
   },
   image: {
     width: "100%",
     height: "100%",
   },
   previewText: {
-    color: Colors.secondary500,
+    color: Colors.primary500,
+  },
+  buttons: {
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderColor: Colors.primary500,
   },
 });
