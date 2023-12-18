@@ -144,7 +144,7 @@ export default function UploadData({ navigation }) {
             <FullButton
               icon="paper-plane-outline"
               onPress={() => {
-                console.log(enteredDescription, pickedImage, location);
+                console.log(enteredDescription, pickedImage);
                 navigation.navigate("DataSent");
               }}
             >
