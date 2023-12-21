@@ -13,7 +13,9 @@ export default function App() {
     <>
       <StatusBar style="light" />
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator
+          screenOptions={{ headerShown: false, headerBackVisible: false }}
+        >
           <Stack.Screen name="EcoWatcher" component={Home} />
           <Stack.Screen name="UploadData" component={UploadData} />
           <Stack.Screen name="DataSent" component={DataSent} />

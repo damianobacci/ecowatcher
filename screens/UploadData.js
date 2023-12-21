@@ -18,11 +18,13 @@ import {
 } from "expo-location";
 import FullButton from "../components/ui/FullButton";
 import { getMapPreview, reverseGeocode } from "../utils/location";
+import { storeLitter } from "../utils/http";
 import * as Linking from "expo-linking";
 
 export default function UploadData({ navigation }) {
   const [enteredDescription, setEnteredDescription] = useState("");
   const [pickedImage, setPickedImage] = useState();
+  const [pickingLocation, setpickingLocation] = useState(false);
   const [location, setLocation] = useState("");
   const [locationPermissionInfo, requestPermission] =
     useForegroundPermissions();
@@ -67,11 +69,13 @@ export default function UploadData({ navigation }) {
   }
 
   async function getLocationHandler() {
+    setpickingLocation(true);
     const hasPermission = await verifyPermission();
     if (!hasPermission) {
       return;
     }
     const currentLocation = await getCurrentPositionAsync({ accuracy: 5 });
+
     const address = await reverseGeocode(
       currentLocation.coords.latitude,
       currentLocation.coords.longitude
@@ -83,10 +87,38 @@ export default function UploadData({ navigation }) {
     });
   }
 
+  function twitterHandler() {
+    if (!enteredDescription || !location || !pickedImage) {
+      Alert.alert("Missing data", "Please fill all the data fields");
+      return;
+    }
+    Linking.openURL(
+      `https://twitter.com/intent/tweet?text=Ciao%20%40amsa_spa%2C%20vi%20segnalo%20${enteredDescription}.%20Indirizzo%3A%20${location.address}%2C%20coord%3A%20${location.lat}%2C${location.lng}`
+    );
+  }
+
+  async function sendDataHandler() {
+    if (!enteredDescription || !location || !pickedImage) {
+      Alert.alert("Missing data", "Please fill all the data fields");
+      return;
+    }
+    try {
+      await storeLitter({
+        description: enteredDescription,
+        location: location,
+      });
+      navigation.navigate("DataSent");
+      resetHandler();
+    } catch (error) {
+      navigation.navigate("Error", { errorMessage: error.toString() });
+    }
+  }
+
   function resetHandler() {
     setEnteredDescription("");
     setPickedImage("");
     setLocation("");
+    setpickingLocation(false);
   }
   return (
     <View style={styles.container}>
@@ -131,6 +163,9 @@ export default function UploadData({ navigation }) {
             ) : (
               <Text style={styles.previewText}>No location picked yet.</Text>
             )}
+            {pickingLocation && !location && (
+              <Text style={styles.previewText}>Picking a location...</Text>
+            )}
           </View>
 
           <View style={styles.controls}>
@@ -141,23 +176,10 @@ export default function UploadData({ navigation }) {
         </View>
         <View style={styles.buttons}>
           <View style={styles.controls}>
-            <FullButton
-              icon="paper-plane-outline"
-              onPress={() => {
-                console.log(enteredDescription, pickedImage, location);
-                navigation.navigate("DataSent");
-              }}
-            >
+            <FullButton icon="paper-plane-outline" onPress={sendDataHandler}>
               SEND
             </FullButton>
-            <FullButton
-              icon="logo-twitter"
-              onPress={() =>
-                Linking.openURL(
-                  `https://twitter.com/intent/tweet?text=Ciao%20%40amsa_spa%2C%20vi%20segnalo%20${enteredDescription}.%20Indirizzo%3A%20${location.address}%2C%20coord%3A%20${location.lat}%2C${location.lng}`
-                )
-              }
-            >
+            <FullButton icon="logo-twitter" onPress={twitterHandler}>
               TWEET
             </FullButton>
             <OutlinedButton icon="refresh-outline" onPress={resetHandler}>
