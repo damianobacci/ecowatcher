@@ -57,7 +57,7 @@ export default function UploadData({ navigation }) {
 
     if (locationPermissionInfo.status === PermissionStatus.DENIED) {
       Alert.alert(
-        "Insufficient Permisisons!",
+        "Insufficient Permissions!",
         "You need to grant location permissions to use this app."
       );
       return false;
