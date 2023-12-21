@@ -95,6 +95,7 @@ export default function UploadData({ navigation }) {
     Linking.openURL(
       `https://twitter.com/intent/tweet?text=Ciao%20%40amsa_spa%2C%20vi%20segnalo%20${enteredDescription}.%20Indirizzo%3A%20${location.address}%2C%20coord%3A%20${location.lat}%2C${location.lng}`
     );
+    resetHandler();
   }
 
   async function sendDataHandler() {
